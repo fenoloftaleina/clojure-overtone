@@ -1,14 +1,3 @@
-# asdf
+# clojure-overtone
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Overtone is an open source audio environment designed to explore new musical ideas from synthesis and sampling to instrument building, live-coding and collaborative jamming. We combine the powerful SuperCollider audio engine, with Clojure, a state of-the-art lisp, to create an intoxicating interactive sonic experience.
