@@ -1,6 +1,12 @@
 (ns asdf.instruments)
 (use 'overtone.live)
 
+(for [y [4 3 3 1]]
+  (for [x [1 2 3 4 10 15 25 31]]
+    (do
+      (demo (* 0.05 (sin-osc (* (mod y x) 210) 0)))
+      (demo (* 0.05 (sin-osc (* (mod x y) 210) 0))))))
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
