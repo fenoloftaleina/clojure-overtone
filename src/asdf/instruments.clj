@@ -14,6 +14,12 @@
 ((white (line:kr 5000 1000 2)))
 (stop)
 
+(demo (white-noise))
+(demo (pan2 (white-noise)))
+(demo (mix (pan2 (white-noise))))
+
+(demo (pan2 (white-noise) (mouse-x)))
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
