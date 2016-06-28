@@ -23,6 +23,24 @@
 (demo (resonz (white-noise) 25 10))
 (demo (resonz (white-noise) (line:kr 500 50 1) 10))
 
+(defsynth sin2 [freq 440]
+  (out 0 (sin-osc freq))
+  (out 1 (sin-osc freq)))
+(defsynth sin2a [freq 440]
+  (out 0 [(sin-osc freq) (sin-osc freq)]))
+(defsynth sin2b [freq 440]
+  (out 0 (sin-osc [freq freq])))
+(defsynth sin2c [freq 440]
+  (out 0 (* 0.2 [(sin-osc freq) (sin-osc freq)])))
+(defsynth sin2d [freq 440]
+  (out 0 (* [0.3 0.9] (sin-osc freq))))
+(sin2)
+(sin2a)
+(sin2b)
+(sin2c)
+(sin2d)
+(stop)
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
