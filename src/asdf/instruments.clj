@@ -20,6 +20,9 @@
 
 (demo (pan2 (white-noise) (mouse-x)))
 
+(demo (resonz (white-noise) 25 10))
+(demo (resonz (white-noise) (line:kr 500 50 1) 10))
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
