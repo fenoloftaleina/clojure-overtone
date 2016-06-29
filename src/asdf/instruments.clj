@@ -54,6 +54,11 @@
      :action FREE)))
 ;; Curves: :step, :linear, :exponential, :sine, :welch, float, array of floats.
 
+(defsynth noise-in-env [freq 220]
+  (out 0 (pan2 (* 0.2 (white-noise) (adsr-env 1 2 0.5 1 2)))))
+(noise-in-env)
+(stop)
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
