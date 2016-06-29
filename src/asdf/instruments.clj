@@ -41,6 +41,9 @@
 (sin2d)
 (stop)
 
+(let [freq 220]
+  (demo (* (white-noise) (env-gen (perc 0.001 4 3) :action FREE)) 1 3 (/ 1 freq)))
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
