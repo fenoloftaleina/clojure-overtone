@@ -59,6 +59,15 @@
 (noise-in-env)
 (stop)
 
+(defsynth play-a-bell [freq 440]
+  (let [freqs [0.5 1 1.19 1.56 2 2.51 2.66 3.01 4.1]
+        ampls (map #(* % 0.5) [0.25 1 0.8 0.5 0.9 0.4 0.3 0.6 0.1])
+        freqs-times-ampls (map * freqs ampls)
+        ]
+    (out 0 (pan2 (mix (sin-osc (* freq freqs-times-ampls)))))))
+(play-a-bell)
+(stop)
+
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
