@@ -32,15 +32,23 @@
              (next score) []))))))
 (def subject [[:d4 3] [:d4 2] [nil 3] [:a4 4] [:a4 3]])
 
+(definst sin-wave [freq 440 attack 0.01 sustain 0.5 release 0.1 vol 0.7]
+  (* (env-gen (env-lin attack sustain release) 1 1 0 1 FREE)
+     (sin-osc freq)
+     vol))
+
 (defn play-chord
   ([a-chord]
     (play-chord a-chord 0.5))
   ([a-chord length]
-    ;; (doseq [note a-chord] (saw2 note length))))
-    (doseq [note a-chord] (sampled-piano note))))
+    (doseq [note a-chord]
+      (let [sustain 0.05
+            attack (/ sustain 5)
+            release (/ sustain 3)]
+      (sin-wave (midi->hz note) :sustain sustain :attack attack :release release)))))
+    ;; (doseq [note a-chord] (sampled-piano note))))
 
 (defonce metro (metronome 120))
-(metro)
 (defn chord-progression-beat [m beat-num]
   (at (m (+ 0 beat-num)) (play-chord (chord :C4 :major) 0))
   (at (m (+ 2 beat-num)) (play-chord (chord :G3 :major)))
@@ -54,6 +62,7 @@
 
 (stop)
 (chord-progression-beat metro (metro))
+(metro-bpm metro 2120)
 
 (sampled-piano (note :C3))
 (sampled-piano (note :G#2))
