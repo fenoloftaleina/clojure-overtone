@@ -10,5 +10,4 @@
                  [org.clojure/core.async "0.3.442"]
                  [overtone "0.10.1"]
                  [lein-figwheel "0.5.8"]
-                 [quil "2.5.0"]]
-  :main "asdf.midi")
+                 [quil "2.5.0"]])
