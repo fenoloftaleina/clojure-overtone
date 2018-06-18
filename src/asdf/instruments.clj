@@ -9,19 +9,71 @@
 
 (defn white [lowpass]
   (definst w []
-    (lpf (white-noise) lowpass)))
+    (lpf (pan2 (* 3 (white-noise))) lowpass)))
+(defn white-bpf [a b]
+  (definst w []
+    (bpf (pan2 (* 15 (white-noise))) a b)))
 ((white 1000))
+((white 2000))
+(do (stop) ((white-bpf 1000 0.1)))
+((white-bpf 500 3))
+(stop)
+(do
+  (stop)
+  ((white 1000))
+  ((white 1000))
+  ((white 1000))
+  ((white 1000))
+  ((white 1000))
+  ((white 1000))
+  ((white 2000))
+  ((white 2000))
+  ((white 2000))
+  ((white 2000))
+  )
+(stop)
 ((white (line:kr 5000 1000 2)))
+((white (integrator:kr (line:kr 90 100) 1)))
+(demo 5 (sin-osc (integrator:kr (sin-osc:kr 1000) 1)))
+(stop)
+(defsynth decaying-sin []
+  (out 0 (sin-osc (decay:kr (line:kr 50 100) 1))))
+(decaying-sin)
+
+(demo 5 (sin-osc (line:kr 50 100 1)))
+(defn a []
+  (demo 1 (sin-osc (line:kr 50 100 1))))
+(defn b []
+  (demo 0.2 (sin-osc (line:kr 50 100 0.2)))
+  (demo 0.2 (sin-osc (line:kr 100 50 0.2)))
+  (demo 0.2 (sin-osc (line:kr 50 100 0.2)))
+  (demo 0.2 (sin-osc (line:kr 100 50 0.2)))
+  (demo 0.2 (sin-osc (line:kr 50 100 0.2)))
+  (demo 0.2 (sin-osc (line:kr 100 50 0.2)))
+  (demo 0.2 (sin-osc (line:kr 50 100 0.2)))
+  )
+(apply-at (+ (now) 1000) a)
+(apply-at (+ (now) 2000) b)
+
+(demo 2 (sin-osc (env-gen (envelope [400 600 800 600 0] [0.2 0.2 0.2 0.2] :step))))
 (stop)
 
-(demo (white-noise))
-(demo (pan2 (white-noise)))
+(demo (pan2 (* 2 (white-noise))))
+(demo 10 (pan2 (white-noise) (line:kr -1 1 10)))
 (demo (mix (pan2 (white-noise))))
 
 (demo (pan2 (white-noise) (mouse-x)))
 
+(demo (white-noise))
 (demo (resonz (white-noise) 25 10))
-(demo (resonz (white-noise) (line:kr 500 50 1) 10))
+(demo (resonz (pink-noise) 25 10))
+(demo (resonz (pink-noise) (line:kr 500 50 1) 10))
+(demo 2
+      ;; (mix (sin-osc [400 500 600] [0.5 0.2 0.1]))
+      (+
+        (sin-osc 440)
+        (sin-osc 880)
+      ))
 
 (defsynth sin2 [freq 440]
   (out 0 (sin-osc freq))
@@ -55,7 +107,15 @@
 ;; Curves: :step, :linear, :exponential, :sine, :welch, float, array of floats.
 
 (defsynth noise-in-env [freq 220]
-  (out 0 (pan2 (* 0.2 (white-noise) (adsr-env 1 2 0.5 1 2)))))
+  (out
+    0
+    (pan2
+      (*
+       0.2
+       (white-noise)
+       (adsr-env 1 2 5.5 1 2))
+      ;; (mouse-x -1 1)
+      )))
 (noise-in-env)
 (stop)
 
@@ -64,7 +124,7 @@
         ampls (map #(* % 0.5) [0.25 1 0.8 0.5 0.9 0.4 0.3 0.6 0.1])
         freqs-times-ampls (map * freqs ampls)
         ]
-    (out 0 (pan2 (mix (sin-osc (* freq freqs-times-ampls)))))))
+    (out (pan2 (sin-osc (* freq freqs-times-ampls))))))
 (play-a-bell)
 (stop)
 
@@ -132,5 +192,12 @@
     (line:kr 0.5 0.7 length FREE)
     (saw (+ freq (* depth (sin-osc:kr rate))))))
 
-(trem :length 200 :depth 400 :rate 200)
+(trem :length 100 :depth 800 :rate 100)
+(trem :length 100 :depth 800 :rate 200)
+(trem :length 100 :depth 800 :rate 800)
 (stop)
+
+(use 'overtone.inst.drum)
+(kick)
+(kick2)
+(kick3)

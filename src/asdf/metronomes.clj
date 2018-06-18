@@ -8,8 +8,9 @@
     (at  (nome beat)  (sound))
     (apply-by  (nome  (inc beat)) looper nome sound  [])))
 ;; (looper (metronome 80) kick2)
-;; (looper (metronome 100) kick3)
+(looper (metronome 200) kick2)
 ;; (looper (metronome 500) kick4)
+(defn looper [] nil)
 
 (use 'overtone.inst.sampled-piano)
 
@@ -41,7 +42,8 @@
   ([a-chord]
     (play-chord a-chord 0.5))
   ([a-chord length]
-    (doseq [note a-chord] (sampled-piano :note note :sustain length))))
+    ;; (doseq [note a-chord] (sampled-piano :note note :sustain length))))
+    (doseq [note a-chord] (sin-wave :freq (midi->hz note) :sustain length))))
 
 (defonce metro (metronome 120))
 (defn chord-progression-beat [m beat-num]
