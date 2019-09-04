@@ -4,6 +4,7 @@
 ;; (comment
 (def server (osc-server 44100 "osc-clj"))
 (zero-conf-on)
+;; )
 
 (osc-rm-listener server :debug)
 (osc-listen server (fn [msg] (println msg)) :debug)
@@ -27,6 +28,14 @@
 (for [i (range 1 7)]
   (osc-handle server (str "/3/rotary" i) (fn [msg] (control (dec i) (first (:args msg))))))
 
+(def rotaries (atom [0 0 0 0 0 0 0 0]))
+
+(defn set-rotary [i value]
+  (swap! rotaries #(assoc % i value)))
+
+(for [i (range 1 9)]
+  (osc-handle server (str "/3/rotary" i) (fn [msg] (set-rotary (dec i) (first (:args msg))))))
+
 (stop)
 
 ;; )
@@ -38,7 +47,7 @@
   (mix (map #(sin-osc (* y (scale-range % 0 1 50 1000))) freqs)))
 
 (idk)
-(ctl idk :y 0.5)
+(ctl idk :y 1.5)
 
 (for [i (range 1 9)]
   (osc-handle server (str "/1/push" i) (fn [msg] (ctl idk :y (scale-range i 1 9 0.1 2)))))
@@ -61,7 +70,7 @@
         (at (metro (+ start i)) (ctl idk :y f)))
       notes))
   (at (metro (+ notes-cnt start)) (melo metro (+ start notes-cnt))))
-(melo (metronome 400) 0)
+#_(melo (metronome 400) 0)
 
 (stop)
 
@@ -278,6 +287,6 @@
   )
 )))
 
+
 ;; it works
-
-
+(stop)

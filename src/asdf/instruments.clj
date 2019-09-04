@@ -1,12 +1,18 @@
-(ns asdf.instruments)
+(ns asdf.instruments
+  (:require
+    [asdf.sequencer :refer [se ranger]]
+    [clojure.repl :refer [source]]))
 (use 'overtone.live)
 
-(for [y [4 3 3 1]]
-  (for [x [1 2 3 4 10 15 25 31]]
-    (do
-      (demo (* 0.05 (sin-osc (* (mod y x) 210) 0)))
-      (demo (* 0.05 (sin-osc (* (mod x y) 210) 0))))))
+;; (for [y [4 3 3 1]]
+;;   (for [x [1 2 3 4 10 15 25 31]]
+;;     (do
+;;       (demo (* 0.05 (sin-osc (* (mod y x) 210) 0)))
+;;       (demo (* 0.05 (sin-osc (* (mod x y) 210) 0))))))
 
+(prn :asdf)
+
+(+ 1 2)
 (defn white [lowpass]
   (definst w []
     (lpf (pan2 (* 3 (white-noise))) lowpass)))
@@ -119,21 +125,42 @@
 (noise-in-env)
 (stop)
 
-(defsynth play-a-bell [freq 440]
+#_(defsynth play-a-bell [freq 440]
   (let [freqs [0.5 1 1.19 1.56 2 2.51 2.66 3.01 4.1]
         ampls (map #(* % 0.5) [0.25 1 0.8 0.5 0.9 0.4 0.3 0.6 0.1])
         freqs-times-ampls (map * freqs ampls)
         ]
     (out (pan2 (sin-osc (* freq freqs-times-ampls))))))
-(play-a-bell)
+#_(play-a-bell)
 (stop)
 
 (definst trem [freq 440 depth 10 rate 6 length 3]
   (* 0.3
      (line:kr 0 1 length FREE)
-     (saw (+ freq (* depth (sin-osc:kr rate))))))
+     (sin-osc (+ freq (* depth (sin-osc:kr rate))))))
 (trem)
 (stop)
+
+
+(do
+  (stop)
+  (definst a [freq 440 depth 10 rate 6 length 5]
+    (mix
+      [
+    (* 1
+
+       (line:kr 1 1 length FREE)
+       ;; (sin-osc:kr 10)
+       (sin-osc (+ freq
+                   (* (sin-osc:kr 2440) 10)
+                   (line:kr 50 10 3)
+                   ;; (line:kr 0 50 length FREE)
+                   )
+                ))
+    (sin-osc freq)
+    ;; (saw 10)
+    ]))
+  (a))
 
 (def scale-degrees [:vi :vii :i+ :_ :vii :_ :i+ :vii :vi :_ :vii :_])
 (def pitches (degrees->pitches scale-degrees :dorian :C4))
@@ -148,6 +175,222 @@
      (sin-osc freq)
      vol))
 (sin-wave :sustain 2)
+
+(demo 2 (pan2
+          (* 0.5
+             (mix
+               [
+                (sin-osc (sin-osc 400))
+                ]
+               )
+             )))
+
+(definst kosc [freq 440]
+  (* 0.2
+     (sin-osc freq)))
+
+(definst kosc2 [freq 440]
+  (* 0.2
+     (sin-osc freq)))
+
+(clojure.repl/source sin-osc)
+
+(kosc (kosc2 90))
+(ctl kosc2 :freq 1332)
+(stop)
+
+
+
+(prn (sin-osc 400))
+
+(defn hz [k]
+  (when k
+    (midi->hz (note k))))
+
+(defn freqs0 [i]
+  (let [notes
+        (mapv
+          hz
+          (concat
+            (repeat 5 nil)
+            (repeat 5 :E5)
+            (repeat 3 :F4)
+            (repeat 2 :E4)
+            (repeat 3 :D5)
+            (repeat 2 :C4)
+            (repeat 2 :C5)
+            (repeat 2 :D4)
+            (repeat 1 :D5)
+            ))]
+    (get notes (mod i (count notes)))))
+
+(defn freqs [i]
+  (let [notes
+        (mapv
+          hz
+          (concat
+            (repeat 5 nil)
+            (repeat 5 :E5)
+            (repeat 3 :F4)
+            (repeat 2 :E4)
+            (repeat 3 :D5)
+            (repeat 2 :C4)
+            (repeat 2 :C5)
+            (repeat 2 :D5)
+            (repeat 1 nil)
+            ))]
+    (get notes (mod i (count notes)))))
+
+(defn freqs2 [i]
+  (let [notes
+        (mapv
+          hz
+          ;; (reverse
+          (concat
+            (repeat 5 nil)
+            (repeat 5 :E5)
+            (repeat 3 :F4)
+            (repeat 2 :E4)
+            (repeat 3 :D5)
+            (repeat 2 :C4)
+            (repeat 2 :C5)
+            (repeat 2 :D5)
+            ;; )
+            ))]
+    (get notes (mod i (count notes)))))
+
+(defn a [i]
+  (sin-wave :freq (freqs0 i) :attack 0.5 :sustain 0.1))
+
+(defn b [i]
+  (sin-wave :freq (* 10 (freqs2 i))
+            :vol 0.01))
+
+(defn c [i]
+  (sin-wave :freq (* 1.5
+                     (freqs i))
+            :vol 0.1))
+
+(se
+  (metronome 200)
+  (map (fn [freq]
+         #(sin-wave :freq freq))
+       (concat
+         (repeat 1000 (hz :A4))))
+
+  (metronome 200)
+  (map (fn [i]
+         #(a i))
+       (range 1000))
+
+
+  (metronome 400)
+  (map (fn [i]
+         #(b i))
+       (range 1000))
+
+  (metronome 200)
+  (map (fn [i]
+         #(c i))
+       (range 1000))
+
+  )
+(stop)
+
+;; (defn kick-notes []
+;;   [400 nil 500 nil 300 400 500 nil 600])
+
+(use 'overtone.inst.drum)
+
+(defn instro [x]
+  (let [s 0.5
+        a 0.1]
+    (doseq [e [
+               x
+               (+ x 100)
+               (+ x 200)
+               (+ x 255)
+               (+ x 319)
+               (+ x 39)
+               (+ x 49)
+               (+ x 490)
+               ]]
+      (sin-wave :freq e :sustain s :attack a :vol 0.1))))
+
+
+;; (se
+;;   (metronome 250)
+;;   (ranger instro melody1-notes 2000))
+;; (stop)
+
+;; (use 'overtone.music.pitch)
+(use 'overtone.inst.sampled-piano)
+
+(defn melody1 [x]
+  (sampled-piano :note x
+                 :attack 0.5
+                 :sustain 1
+                 :release 1
+                 :decay 0.5
+                 :level 0.5))
+
+(defn melody1-notes []
+  (flatten
+    (concat
+      (repeat 2 (scale :Cb2 :minor [:iii :iv :v]))
+      (repeat 2 (scale :Ab2 :minor [:ii :iv :ii]))
+      ;; (repeat 2 (scale :Cb2 :minor [:ii :iv :v]))
+      ;; (repeat 2 (scale :G2 :minor [:ii :iv :vii]))
+  )))
+
+(defn drum1 [x]
+  (kick2 x))
+
+(defn drum1-notes []
+  [50 50 35 35 25 60 60 40])
+
+(defn drum2 [x]
+  (snare2 x 2))
+
+(defn drum2-notes []
+  [150 250 150 150 250]
+  )
+
+(defn bass1 [x]
+  (mapv #(sin-wave :freq (* x %)
+                   :attack (/ % 2)
+                   :sustain 1
+                   :vol 0.2)
+        [2 3 5]))
+
+(defn bass1-notes []
+  [50 50 35 35 25 60 60 40])
+
+(se
+  (metronome 500)
+  (ranger drum1 drum1-notes 10000)
+
+  (metronome 500)
+  (ranger drum2 drum2-notes 10000)
+
+  (metronome 250)
+  (ranger bass1 bass1-notes 10000)
+
+  (metronome 250)
+  (ranger melody1 melody1-notes 2000)
+
+  ;; (metronome 250)
+  ;; (ranger melody2 melody2-notes 200)
+  )
+(stop)
+
+
+
+(definst saw-wave [lowpass 440 freq 100 attack 0.01 sustain 0.4 release 0.1 vol 0.4]
+  (* (env-gen (lin attack sustain release) 1 1 0 1 FREE)
+     (lpf (pan2 (saw freq)) lowpass)
+     vol))
+
 
 (demo 10 (lpf (saw 100) (mouse-x 40 5000 EXP)))
 (demo 10 (hpf (saw 100) (mouse-x 40 5000 EXP)))
@@ -196,8 +439,3 @@
 (trem :length 100 :depth 800 :rate 200)
 (trem :length 100 :depth 800 :rate 800)
 (stop)
-
-(use 'overtone.inst.drum)
-(kick)
-(kick2)
-(kick3)

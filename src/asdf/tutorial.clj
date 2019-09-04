@@ -43,9 +43,9 @@
   (let [freqs (take 5 (repeatedly #(ranged-rand 40 2000)))
         ampmod [a b]
         snd (splay (* 0.5 (sin-osc [40 100 500 600 300])))]
-    (* (sin-osc ampmod) snd)))
+    (* (sin-osc ampmod)41nd)))
 (roaming-sines)
-(ctl roaming-sines :a 50 :b 1400)
+(ctl roaming-sines :a 1402 :b 1400)
 (stop)
 (odoc splay)
 
